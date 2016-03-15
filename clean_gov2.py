@@ -1,4 +1,4 @@
-
+#!/bos/usr0/zhuyund/bin/python2.7
 import argparse
 from boilerpipe.extract import Extractor
 
@@ -25,10 +25,10 @@ class TrecReader:
         """
         line = self.f.readline()  # <DOC>
         if not line:
-            return None
+            raise StopIteration()
 
         line = self.f.readline()  # <DOCNO>
-        docno = line.strip().split('>')[1]
+        docno = line.strip().split('>')[1].split('<')[0]
 
         while True:
             line = self.f.readline().strip()
@@ -72,7 +72,7 @@ def main():
         if not html_text:
             empty_cnt += 1
         try:
-            extractor = Extractor(extractor='ArticleExtractor',html=html_text)
+            extractor = Extractor(extractor='ArticleExtractor', html=html_text)
             text = extractor.getText()
             text = text.replace('\n', ' ').replace('\t', ' ')
             text = text.encode('ascii', 'ignore')
