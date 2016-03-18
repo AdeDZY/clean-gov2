@@ -72,7 +72,7 @@ def main():
         if not html_text:
             empty_cnt += 1
         try:
-            extractor = Extractor(extractor='ArticleExtractor', html=html_text)
+            extractor = Extractor(extractor='ArticleEverythingExtractor', html=html_text)
             text = extractor.getText()
             text = text.replace('\n', ' ').replace('\t', ' ')
             text = text.encode('ascii', 'ignore')
