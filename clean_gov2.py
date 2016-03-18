@@ -6,6 +6,8 @@ import logging
 import traceback
 import string
 import nltk
+from os import listdir, makedirs
+from os.path import isfile, join, exists
 
 
 class TrecReader:
@@ -59,30 +61,33 @@ def text_clean(text):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("raw_file_path")
+    parser.add_argument("raw_dir_path")
     parser.add_argument("out_file_path")
     args = parser.parse_args()
 
-    trec_reader = TrecReader(args.raw_file_path)
-    empty_cnt = 0
-    err_cnt = 0
+    f_names = [f for f in listdir(args.raw_dir_path)]
     fout = open(args.out_file_path, 'w')
 
-    for docno, html_text in trec_reader:
-        if not html_text:
-            empty_cnt += 1
-        try:
-            extractor = Extractor(extractor='ArticleExtractor', html=html_text)
-            text = extractor.getText()
-            text = text.replace('\n', ' ').replace('\t', ' ')
-            text = text.encode('ascii', 'ignore')
-            text = text_clean(text)
-            if text:
-                fout.write(docno + '\t' + text + '\n')
-            else:
+    for f_name in f_names:
+        trec_reader = TrecReader(join(args.raw_dir_path, f_name))
+        empty_cnt = 0
+        err_cnt = 0
+
+        for docno, html_text in trec_reader:
+            if not html_text:
                 empty_cnt += 1
-        except Exception as e:
-            err_cnt += 1
+            try:
+                extractor = Extractor(extractor='ArticleExtractor', html=html_text)
+                text = extractor.getText()
+                text = text.replace('\n', ' ').replace('\t', ' ')
+                text = text.encode('ascii', 'ignore')
+                text = text_clean(text)
+                if text:
+                    fout.write(docno + '\t' + text + '\n')
+                else:
+                    empty_cnt += 1
+            except Exception as e:
+                err_cnt += 1
 
     fout.close()
     print empty_cnt, err_cnt
